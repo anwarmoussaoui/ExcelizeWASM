@@ -17,19 +17,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step to set up Java 21
+    # Step to set up Java 21 with Temurin
     - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
         java-version: '21'
-        distribution: 'adoptopenjdk'
+        distribution: 'temurin'
 
     # Step to install Maven dependencies
     - name: Set up Maven
       uses: actions/setup-java@v3
       with:
         java-version: '21'
-        maven-version: '3.9.0'  # Ensure Maven is the latest version
+        maven-version: '3.9.0'
 
     # Step to run tests
     - name: Run tests
