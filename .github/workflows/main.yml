@@ -10,20 +10,36 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Or any other runner
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    # Step to check out the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Java 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'adoptopenjdk'  # Or 'openjdk'
+    # Step to set up Java 21
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'adoptopenjdk'
 
-      - name: Build with Maven
-        run: mvn clean install
+    # Step to install Maven dependencies
+    - name: Set up Maven
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        maven-version: '3.9.0'  # Ensure Maven is the latest version
 
-      - name: Run tests
-        run: mvn test
+    # Step to run tests
+    - name: Run tests
+      run: |
+        mvn clean install
+        mvn test
+
+    # Step to run the app using python http server locally
+    - name: Run Python HTTP Server
+      run: |
+        python3 -m http.server 8080 &
+        sleep 5  # Give it some time to start up
+        curl -f http://localhost:8080 || exit 1  # Make sure the server is running
