@@ -26,10 +26,7 @@ jobs:
 
     # Step to install Maven dependencies
     - name: Set up Maven
-      uses: actions/setup-java@v3
-      with:
-        java-version: '21'
-        maven-version: '3.9.0'
+      run: sudo apt-get install maven
 
     # Step to run tests
     - name: Run tests
