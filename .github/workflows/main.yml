@@ -35,8 +35,22 @@ jobs:
         mvn test
 
     # Step to run the app using python http server locally
-    - name: Run Python HTTP Server
+    - name: Run the app and wait for server to start
       run: |
-        
-        mvn mn:run
-        curl -f http://localhost:8080 || exit 1  # Make sure the server is running
+        mvn mn:run &
+        # Wait for the server to start
+        until curl -f http://localhost:8080; do
+          echo "Waiting for server to start..."
+          sleep 10
+        done
+
+    # Step to test /upload endpoint
+    - name: Test /upload endpoint
+      run: |
+        curl --fail --silent --dump-header - -X POST http://localhost:8080/upload \
+        -F "file=@path/to/your/file" # Replace with actual file path
+
+    # Step to test /download endpoint
+    - name: Test /download endpoint
+      run: |
+        curl --fail --silent --dump-header - -o downloaded_file http://localhost:8080/download
