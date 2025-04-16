@@ -29,7 +29,6 @@ jobs:
         with:
           java-version: '24.0.0'
           distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
           native-image-job-reports: 'true'
 
@@ -40,7 +39,7 @@ jobs:
       # Step 4: Build the project and run tests
       - name: Run tests
         run: |
-          cd graalwasm/graalwasm-micronaut-photon
+          cd ExcelizeWASM
           ./mvnw clean test
 
       # (Optional) Step 5: Run the app locally and test the /download and /upload endpoints
