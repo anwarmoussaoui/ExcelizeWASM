@@ -35,5 +35,4 @@ This Micronaut project demonstrates how to use **GraalVM**'s Polyglot capabiliti
 ```bash
 git clone https://github.com/anwarmoussaoui/excel-graalvm-demo.git
 cd excel-graalvm-demo
-python -m http.server
 ./mvnw run
