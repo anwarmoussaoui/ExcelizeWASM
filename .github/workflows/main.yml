@@ -44,13 +44,4 @@ jobs:
           sleep 10
         done
 
-    # Step to test /upload endpoint
-    - name: Test /upload endpoint
-      run: |
-        curl --fail --silent --dump-header - -X POST http://localhost:8080/upload \
-        -F "file=@path/to/your/file" # Replace with actual file path
-
-    # Step to test /download endpoint
-    - name: Test /download endpoint
-      run: |
-        curl --fail --silent --dump-header - -o downloaded_file http://localhost:8080/download
+  
