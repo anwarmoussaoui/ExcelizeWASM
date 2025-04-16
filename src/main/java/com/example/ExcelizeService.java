@@ -1,10 +1,13 @@
 package com.example;
 
+import io.micronaut.core.io.ResourceResolver;
+import io.micronaut.core.io.scan.ClassPathResourceLoader;
 import org.graalvm.polyglot.*;
 import org.graalvm.polyglot.io.IOAccess;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,18 +17,22 @@ import java.util.List;
 import java.util.Map;
 
 
-
+@io.micronaut.context.annotation.Context
 public class ExcelizeService {
-    public ExcelizeService() {
+
+    private final ResourceResolver resourceResolver;
+
+    public ExcelizeService(ResourceResolver resourceResolver) {
+        this.resourceResolver = resourceResolver;
     }
+
 
     public void runExcelizeComplete(Object[][] array) throws IOException {
         // Constants
         final String INTERNAL_MODULE_URI_HEADER = "oracle:/mle/";
 
         // Helper method for reading files
-        Path inputFile = Paths.get("./src/main/resources/excelize.wasm");
-        byte[] excelizeWasmBytes = Files.readAllBytes(inputFile);
+        byte[] excelizeWasmBytes  = resourceResolver.getResourceAsStream("classpath:excelize.wasm").get().readAllBytes();
 
         // Load test file based on fileSize
         String test = null;
@@ -33,7 +40,7 @@ public class ExcelizeService {
 
         test = Files.readString(Paths.get("./src/main/resources/excelize_test.js"));
         // Load required JavaScript files
-        String testInit = Files.readString(Paths.get("./src/main/resources/excel-init.js"));
+
         String prep = Files.readString(Paths.get("./src/main/resources/excelize_prep.js"));
         String encodingIdxs = Files.readString(Paths.get("./src/main/resources/encoding-indexes.js"));
         String encoding = Files.readString(Paths.get("./src/main/resources/encoding.js"));
@@ -45,7 +52,6 @@ public class ExcelizeService {
         options.put("js.top-level-await", "true");
         options.put("js.webassembly", "true");
         options.put("js.commonjs-require", "true");
-        options.put("js.mle-mode", "true");
         options.put("js.esm-eval-returns-exports", "true");
         options.put("js.unhandled-rejections", "throw");
         options.put("js.commonjs-require-cwd", Paths.get("./").toAbsolutePath().toString());
@@ -65,20 +71,7 @@ public class ExcelizeService {
                 .build()) {
 
             // Initialize context for WASM precompilation
-            Context context1 = Context.newBuilder("js", "wasm")
-                    .engine(engine)
-                    .allowIO(IOAccess.ALL)
-                    .allowAllAccess(true)
-                    .allowPolyglotAccess(PolyglotAccess.ALL)
-                    .allowExperimentalOptions(true)
-                    .allowHostClassLookup(s -> true)
-                    .allowHostAccess(HostAccess.ALL)
-                    .options(options)
-                    .build();
 
-            Source base64S1 = Source.newBuilder("js", testInit, "test-init.js").build();
-            context1.getBindings("js").putMember("wasmBytes", excelizeWasmBytes);
-            context1.eval(base64S1);
 
             if (test != null) {
                 // For each iteration, create a new context
@@ -145,7 +138,6 @@ public class ExcelizeService {
                 context.close();
             }
 
-            context1.close();
         }
     }
 
@@ -153,14 +145,12 @@ public class ExcelizeService {
         final String INTERNAL_MODULE_URI_HEADER = "oracle:/mle/";
 
         // Read the WASM file bytes
-        Path wasmPath = Paths.get("./src/main/resources/excelize.wasm");
-        byte[] excelizeWasmBytes = Files.readAllBytes(wasmPath);
+        byte[] excelizeWasmBytes = resourceResolver.getResourceAsStream("classpath:excelize.wasm").get().readAllBytes();
 
 
         System.out.println("Executing excelize read...");
 
         // Load required JavaScript files:
-        String testInit = Files.readString(Paths.get("./src/main/resources/excel-init.js"));
         String prep = Files.readString(Paths.get("./src/main/resources/excelize_prep.js"));
         String encodingIdxs = Files.readString(Paths.get("./src/main/resources/encoding-indexes.js"));
         String encoding = Files.readString(Paths.get("./src/main/resources/encoding.js"));
@@ -174,7 +164,6 @@ public class ExcelizeService {
         options.put("js.top-level-await", "true");
         options.put("js.webassembly", "true");
         options.put("js.commonjs-require", "true");
-        options.put("js.mle-mode", "true");
         options.put("js.esm-eval-returns-exports", "true");
         options.put("js.unhandled-rejections", "throw");
         options.put("js.commonjs-require-cwd", Paths.get("./").toAbsolutePath().toString());
@@ -192,22 +181,7 @@ public class ExcelizeService {
                 .options(engineOptions)
                 .build()) {
 
-            // Pre-compilation context (initialize wasm and any base settings)
-            Context context1 = Context.newBuilder("js", "wasm")
-                    .engine(engine)
-                    .allowIO(IOAccess.ALL)
-                    .allowAllAccess(true)
-                    .allowPolyglotAccess(PolyglotAccess.ALL)
-                    .allowExperimentalOptions(true)
-                    .allowHostClassLookup(s -> true)
-                    .allowHostAccess(HostAccess.ALL)
-                    .options(options)
-                    .build();
 
-            Source base64S1 = Source.newBuilder("js", testInit, "test-init.js").build();
-            context1.getBindings("js").putMember("wasmBytes", excelizeWasmBytes);
-            context1.eval(base64S1);
-            context1.close();
 
             // Create context for executing the read function
             Context context = Context.newBuilder("js", "wasm")
