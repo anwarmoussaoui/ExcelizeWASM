@@ -1,5 +1,4 @@
-name: Java CI with Maven
-
+name: Test GraalWasm Micronaut Photon Demo
 on:
   push:
     branches:
@@ -7,34 +6,31 @@ on:
   pull_request:
     branches:
       - main
-
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
-  build:
+  run:
+    name: 'graalwasm-micronaut-excelize'
     runs-on: ubuntu-latest
-
+    timeout-minutes: 30
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Step 2: Set up GraalVM
-      - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1
+      - uses: actions/checkout@v4
+      - uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21.0.0'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
           native-image-job-reports: 'true'
-
-      # Step 3: Install Maven
-      - name: Set up Maven
-        run: sudo apt-get install maven
-
-      # Step 4: Run the tests
-      - name: Run tests with debug logging
+      - name: Package 'graalwasm-micronaut-photon'
         run: |
-          # Enabling debug logging to get more detailed error output
-          echo "micronaut.logging.level.io.micronaut=DEBUG" >> src/main/resources/application.yml
-          mvn clean install -X
-          mvn test -X
+          
+          ./mvnw --no-transfer-progress clean package
+      - name: Build native 'graalwasm-micronaut-photon'
+        run: |
+          cd graalwasm/graalwasm-micronaut-photon
+          ./mvnw --no-transfer-progress clean package -Dpackaging=native-image
+          ./target/demo &
+          sleep 10
+          curl --fail-with-body --silent --dump-header - -o /dev/null http://localhost:8080/
