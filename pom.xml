@@ -116,6 +116,10 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>io.micronaut.views</groupId>
+      <artifactId>micronaut-views-thymeleaf</artifactId> <!-- ④ -->
+    </dependency>
+    <dependency>
       <groupId>io.micronaut.data</groupId>
       <artifactId>micronaut-data-hibernate-jpa</artifactId>
     </dependency>

@@ -6,8 +6,8 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Part;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.multipart.CompletedFileUpload;
-import io.micronaut.http.server.cors.CrossOrigin;
 import jakarta.inject.Inject;
+import io.micronaut.views.View;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,16 +17,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @io.micronaut.http.annotation.Controller
-@CrossOrigin("*")
 public class Controller {
 
     @Inject
     private Repository repository;
-    private ExcelizeService service=new ExcelizeService();
+    private ExcelizeService service;
+
+    public Controller(ExcelizeService service){
+        this.service=service;
+    }
 
 
+    @Get // ③
+    @View("index") // ④
+    public void index() {
 
-    @Get(produces = MediaType.APPLICATION_OCTET_STREAM)
+    }
+
+    @Get(value="download", produces = MediaType.APPLICATION_OCTET_STREAM)
     public HttpResponse<byte[]> downloadExcel() throws IOException {
 
         repository.save(new Book("Dragons","Anwar"));
@@ -61,7 +69,7 @@ public class Controller {
 
 
 
-    @Post(value = "/excel", consumes = MediaType.MULTIPART_FORM_DATA)
+    @Post(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA)
     public HttpResponse<String> uploadExcelFile(@Part("file") CompletedFileUpload file) {
         String filename = file.getFilename();
 
