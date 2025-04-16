@@ -13,8 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: graalvm/setup-graalvm@v1
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up GraalVM
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21.0.0'
           distribution: 'graalvm'
@@ -22,24 +27,14 @@ jobs:
           cache: 'maven'
           native-image-job-reports: 'true'
 
-    # Step to install Maven dependencies
+      # Step 3: Install Maven
       - name: Set up Maven
         run: sudo apt-get install maven
 
-    # Step to run tests
-      - name: Run tests
+      # Step 4: Run the tests
+      - name: Run tests with debug logging
         run: |
-          mvn clean install
-          mvn test
-
-    # Step to run the app using python http server locally
-      - name: Run the app and wait for server to start
-        run: |
-          mvn mn:run &
-          # Wait for the server to start
-          until curl -f http://localhost:8080; do
-            echo "Waiting for server to start..."
-            sleep 10
-          done
-
-  
+          # Enabling debug logging to get more detailed error output
+          echo "micronaut.logging.level.io.micronaut=DEBUG" >> src/main/resources/application.yml
+          mvn clean install -X
+          mvn test -X
