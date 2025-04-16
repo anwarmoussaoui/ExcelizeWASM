@@ -24,19 +24,12 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    # Step to install Maven dependencies
-    - name: Set up Maven
-      run: sudo apt-get install maven
+    # Step to install Maven
+    - name: Install Maven
+      run: sudo apt-get install -y maven
 
     # Step to run tests
-    - name: Run tests
+    - name: Run tests with Maven
       run: |
         mvn clean install
         mvn test
-
-    # Step to run the app using python http server locally
-    - name: Run Python HTTP Server
-      run: |
-        python3 -m http.server 8080 &
-        sleep 5  # Give it some time to start up
-        curl -f http://localhost:8080 || exit 1  # Make sure the server is running
